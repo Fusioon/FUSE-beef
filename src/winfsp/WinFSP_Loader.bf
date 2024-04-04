@@ -6,7 +6,7 @@ using System.IO;
 
 namespace FUSE.winfsp;
 
-class WinFSP_Loader
+static class WinFSP_Loader
 {
 	[CLink]
 	static extern Windows.HModule LoadLibraryA(c_char* libName);
@@ -56,16 +56,62 @@ class WinFSP_Loader
 		if (regType != Windows.REG_SZ)
 			return .Err;
 
-		if (size > 0 && pathbuf[size/sizeof(char16) - 1] == 0)
-			size -= 2;
+		size /= sizeof(char16);
 
-		let dllPath = scope String(Span<char16>(&pathbuf, size / sizeof(char16)));
+		if (size > 0 && pathbuf[size - 1] == 0)
+			size--;
+
+		let dllPath = scope String(Span<char16>(&pathbuf, size));
 		Path.Combine(dllPath, "bin", LIB_NAME);
 		_lib = LoadLibraryA(dllPath.CStr());
 		if (_lib == 0)
 			return .Err;
 
 		return .Ok;
+	}
+
+	static mixin LoadFN(var fn, char8* name)
+	{
+		fn = (.)GetProcAddress(name);
+	}
+
+	public static void FUSE_Load()
+	{
+		LoadFN!(FUSE.fuse.fuse_main_real, "fuse_main_real");
+		LoadFN!(FUSE.fuse.fuse_is_lib_option, "fuse_is_lib_option");
+		LoadFN!(FUSE.fuse.fuse_new, "fuse_new");
+		LoadFN!(FUSE.fuse.fuse_destroy, "fuse_destroy");
+		LoadFN!(FUSE.fuse.fuse_loop, "fuse_loop");
+		LoadFN!(FUSE.fuse.fuse_loop_mt, "fuse_loop_mt");
+		LoadFN!(FUSE.fuse.fuse_exit, "fuse_exit");
+		LoadFN!(FUSE.fuse.fuse_exited, "fuse_exited");
+		LoadFN!(FUSE.fuse.fuse_notify, "fuse_notify");
+		LoadFN!(FUSE.fuse.fuse_get_context, "fuse_get_context");
+		LoadFN!(FUSE.fuse.fuse_getgroups, "fuse_getgroups");
+		LoadFN!(FUSE.fuse.fuse_interrupted, "fuse_interrupted");
+		LoadFN!(FUSE.fuse.fuse_invalidate, "fuse_invalidate");
+		LoadFN!(FUSE.fuse.fuse_notify_poll, "fuse_notify_poll");
+		LoadFN!(FUSE.fuse.fuse_get_session, "fuse_get_session");
+
+		LoadFN!(FUSE.fuse.fuse_version, "fuse_version");
+		LoadFN!(FUSE.fuse.fuse_mount, "fuse_mount");
+		LoadFN!(FUSE.fuse.fuse_unmount, "fuse_unmount");
+		LoadFN!(FUSE.fuse.fuse_parse_cmdline, "fuse_parse_cmdline");
+		LoadFN!(FUSE.fuse.fuse_pollhandle_destroy, "fuse_pollhandle_destroy");
+		LoadFN!(FUSE.fuse.fuse_daemonize, "fuse_daemonize");
+		LoadFN!(FUSE.fuse.fuse_set_signal_handlers, "fuse_set_signal_handlers");
+		LoadFN!(FUSE.fuse.fuse_remove_signal_handlers, "fuse_remove_signal_handlers");
+	}
+
+	public static void FUSE_LoadOpt()
+	{
+		LoadFN!(FUSE.fuse.fuse_opt_parse, "fuse_opt_parse");
+		LoadFN!(FUSE.fuse.fuse_opt_add_arg, "fuse_opt_add_arg");
+		LoadFN!(FUSE.fuse.fuse_opt_insert_arg, "fuse_opt_insert_arg");
+		LoadFN!(FUSE.fuse.fuse_opt_free_args, "fuse_opt_free_args");
+		LoadFN!(FUSE.fuse.fuse_opt_add_opt, "fuse_opt_add_opt");
+		LoadFN!(FUSE.fuse.fuse_opt_add_opt_escaped, "fuse_opt_add_opt_escaped");
+		LoadFN!(FUSE.fuse.fuse_opt_match, "fuse_opt_match");
 	}
 
 	public static void* GetProcAddress(c_char* procName)

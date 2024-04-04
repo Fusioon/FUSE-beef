@@ -21,6 +21,7 @@ class Program
 		const String MOUNT_POINT = "X:";
 
 		WinFSP_Loader.LoadLib();
+		WinFSP_Loader.FUSE_Load();
 
 		// Seems like fuse_arsg cannot be empty, so we have to fill in an empty value in that case
 		int argCount = Math.Min(1, args.Count);
@@ -42,7 +43,7 @@ class Program
 
 		if (USE_OPTS)
 		{
-			let fuse_opt_parse = (PFN_fuse_opt_parse)WinFSP_Loader.GetProcAddress("fuse_opt_parse");
+			WinFSP_Loader.FUSE_LoadOpt();
 
 			fuse_opt[?] option_spec = .(
 				.{ templ = "-h", offset = offsetof(options, show_help), value = 1 },
@@ -183,15 +184,6 @@ class Program
 			return 0;
 		};
 
-		let fuse_mount = (PFN_fuse_mount)WinFSP_Loader.GetProcAddress("fuse_mount");
-		let fuse_unmount = (PFN_fuse_unmount)WinFSP_Loader.GetProcAddress("fuse_unmount");
-		let fuse_new = (PFN_fuse_new)WinFSP_Loader.GetProcAddress("fuse_new");
-		let fuse_destroy = (PFN_fuse_destroy)WinFSP_Loader.GetProcAddress("fuse_destroy");
-
-		let fuse_set_signal_handlers = (PFN_fuse_set_signal_handlers)WinFSP_Loader.GetProcAddress("fuse_set_signal_handlers");
-		let fuse_get_session = (PFN_fuse_get_session)WinFSP_Loader.GetProcAddress("fuse_get_session");
-		let fuse_session_loop = (PFN_fuse_loop)WinFSP_Loader.GetProcAddress("fuse_loop");
-
 		let mount = fuse_mount(MOUNT_POINT, &fuseargs);
 		if (mount == null)
 			return 1;
@@ -207,7 +199,7 @@ class Program
 			return 1;
 
 		fuse_set_signal_handlers(session);
-		fuse_session_loop(fuse);
+		fuse_loop(fuse);
 
 		return 0;
 	}

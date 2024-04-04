@@ -224,9 +224,10 @@ public function c_int PFN_fuse_invalidate(fuse *f, c_char *path);
 public function c_int PFN_fuse_notify_poll(fuse_pollhandle *ph);
 public function fuse_session *PFN_fuse_get_session(fuse *f);
 
-#if FUSE_STATIC
+
 public static
 {
+#if FUSE_STATIC
 	[CLink]
 	public static extern c_int fuse_main_real(c_int argc, c_char **argv, fuse_operations *ops, c_size opsize, void *data);
 	[CLink]
@@ -257,5 +258,22 @@ public static
 	public static extern c_int fuse_notify_poll(fuse_pollhandle *ph);
 	[CLink]
 	public static extern fuse_session *fuse_get_session(fuse *f);
-}
+#else
+	public static PFN_fuse_main_real fuse_main_real;
+	public static PFN_fuse_is_lib_option fuse_is_lib_option;
+	public static PFN_fuse_new fuse_new;
+	public static PFN_fuse_destroy fuse_destroy;
+	public static PFN_fuse_loop fuse_loop;
+	public static PFN_fuse_loop_mt fuse_loop_mt;
+	public static PFN_fuse_exit fuse_exit;
+	public static PFN_fuse_exited fuse_exited;
+	public static PFN_fuse_notify fuse_notify;
+	public static PFN_fuse_get_context fuse_get_context;
+	public static PFN_fuse_getgroups fuse_getgroups;
+	public static PFN_fuse_interrupted fuse_interrupted;
+	public static PFN_fuse_invalidate fuse_invalidate;
+	public static PFN_fuse_notify_poll fuse_notify_poll;
+	public static PFN_fuse_get_session fuse_get_session;
 #endif
+	
+}

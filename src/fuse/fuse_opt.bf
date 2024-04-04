@@ -38,9 +38,10 @@ public function c_int PFN_fuse_opt_add_opt(c_char** opts, c_char* opt);
 public function c_int PFN_fuse_opt_add_opt_escaped(c_char** opts, c_char* opt);
 public function c_int PFN_fuse_opt_match(fuse_opt* opts, c_char* opt);
 
-#if FUSE_STATIC
 public static
 {
+#if FUSE_STATIC
+
 	[CLink] 
 	public static extern c_int fuse_opt_parse(fuse_args* args, void* data, fuse_opt* opts, fuse_opt_proc_t proc);
 	[CLink] 
@@ -55,5 +56,14 @@ public static
 	public static extern c_int fuse_opt_add_opt_escaped(c_char** opts, c_char* opt);
 	[CLink] 
 	public static extern c_int fuse_opt_match(fuse_opt* opts, c_char* opt);
-}
+#else
+	public static PFN_fuse_opt_parse fuse_opt_parse;
+	public static PFN_fuse_opt_add_arg fuse_opt_add_arg;
+	public static PFN_fuse_opt_insert_arg fuse_opt_insert_arg;
+	public static PFN_fuse_opt_free_args fuse_opt_free_args;
+	public static PFN_fuse_opt_add_opt fuse_opt_add_opt;
+	public static PFN_fuse_opt_add_opt_escaped fuse_opt_add_opt_escaped;
+	public static PFN_fuse_opt_match fuse_opt_match;
 #endif
+
+}

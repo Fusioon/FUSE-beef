@@ -117,9 +117,9 @@ function c_int PFN_fuse_daemonize(c_int foreground);
 function c_int PFN_fuse_set_signal_handlers(fuse_session* se);
 function void PFN_fuse_remove_signal_handlers(fuse_session* se);
 
-#if FUSE_STATIC
 public static
 {
+#if FUSE_STATIC
 	[CLink]
 	public static extern c_int fuse_version();
 	[CLink]
@@ -136,5 +136,14 @@ public static
 	public static extern c_int fuse_set_signal_handlers(fuse_session* se);
 	[CLink]
 	public static extern void fuse_remove_signal_handlers(fuse_session* se);
-}
+#else
+	public static PFN_fuse_version fuse_version;
+	public static PFN_fuse_mount fuse_mount;
+	public static PFN_fuse_unmount fuse_unmount;
+	public static PFN_fuse_parse_cmdline fuse_parse_cmdline;
+	public static PFN_fuse_pollhandle_destroy fuse_pollhandle_destroy;
+	public static PFN_fuse_daemonize fuse_daemonize;
+	public static PFN_fuse_set_signal_handlers fuse_set_signal_handlers;
+	public static PFN_fuse_remove_signal_handlers fuse_remove_signal_handlers;
 #endif
+}
